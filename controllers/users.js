@@ -20,7 +20,13 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).json({ error: 'Введены некорректные данные' });
+      } else {
+        res.status(500).json({ error: 'На сервере произошла ошибка' });
+      }
+    });
 };
 
 const updateUserProfile = (req, res) => {
