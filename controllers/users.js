@@ -28,15 +28,16 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
+    .orFail(new Error('Пользователь не найден'))
     .then((user) => {
-      if (!user) {
-        res.status(404).json({ error: 'Пользователь не найден' });
-      } else {
-        res.status(200).json(user);
-      }
+      res.status(200).json(user);
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: 'На сервере произошла ошибка' });
+      }
     });
 };
 
@@ -45,15 +46,16 @@ const updateAvatar = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true })
+    .orFail(new Error('Пользователь не найден'))
     .then((user) => {
-      if (!user) {
-        res.status(404).json({ error: 'Пользователь не найден' });
-      } else {
-        res.status(200).json(user);
-      }
+      res.status(200).json(user);
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(400).json({ error: err.message });
+      }
     });
 };
 

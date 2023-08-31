@@ -26,15 +26,16 @@ const createCard = (req, res) => {
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndDelete(cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(404).json({ error: 'Карточка не найдена' });
-      } else {
-        res.status(200).json({ message: 'Карточка успешно удалена' });
-      }
+    .orFail(new Error('Карточка не найдена'))
+    .then(() => {
+      res.status(200).json({ message: 'Карточка успешно удалена' });
     })
-    .catch(() => {
-      res.status(500).json({ error: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(500).json({ error: 'На сервере произошла ошибка' });
+      }
     });
 };
 
@@ -44,15 +45,16 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new Error('Card not found'))
     .then((card) => {
-      if (!card) {
-        res.status(404).json({ error: 'Card not found' });
-      } else {
-        res.status(200).json(card);
-      }
+      res.status(200).json(card);
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(400).json({ error: err.message });
+      }
     });
 };
 
@@ -62,15 +64,16 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new Error('Card not found'))
     .then((card) => {
-      if (!card) {
-        res.status(404).json({ error: 'Card not found' });
-      } else {
-        res.status(200).json(card);
-      }
+      res.status(200).json(card);
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(404).json({ error: err.message });
+      } else {
+        res.status(400).json({ error: err.message });
+      }
     });
 };
 
