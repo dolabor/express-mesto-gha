@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 
 const getUsers = (req, res) => {
@@ -14,17 +15,26 @@ const getUserById = (req, res) => {
       }
       return res.send(user);
     })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
 };
+
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).json({ error: 'Введены некорректные данные' });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Пользователь не найден' });
       } else {
-        res.status(500).json({ error: 'На сервере произошла ошибка' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -34,15 +44,17 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
-    .orFail(new Error('Пользователь не найден'))
+    .orFail()
     .then((user) => {
-      res.status(200).json(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(404).json({ error: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Пользователь не найден' });
       } else {
-        res.status(500).json({ error: 'На сервере произошла ошибка' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -52,15 +64,17 @@ const updateAvatar = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true })
-    .orFail(new Error('Пользователь не найден'))
+    .orFail()
     .then((user) => {
-      res.status(200).json(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(404).json({ error: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Пользователь не найден' });
       } else {
-        res.status(400).json({ error: err.message });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };

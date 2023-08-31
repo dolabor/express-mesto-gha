@@ -1,12 +1,19 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find()
     .then((cards) => {
-      res.status(200).json(cards);
+      res.status(200).send(cards);
     })
-    .catch(() => {
-      res.status(500).json({ error: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
+      }
     });
 };
 
@@ -16,25 +23,26 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(201).json(card);
+      res.status(201).send(card);
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message });
+      res.status(400).send(err.message);
     });
 };
 
 const deleteCardById = (req, res) => {
-  const { cardId } = req.params;
-  Card.findByIdAndDelete(cardId)
-    .orFail(new Error('Карточка не найдена'))
-    .then(() => {
-      res.status(200).json({ message: 'Карточка успешно удалена' });
+  Card.findByIdAndRemove(req.params.cardId)
+    .orFail()
+    .then((user) => {
+      res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(404).json({ error: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(500).json({ error: 'На сервере произошла ошибка' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -45,15 +53,17 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('Карточка не найдена'))
+    .orFail()
     .then((card) => {
-      res.status(200).json(card);
+      res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(404).json({ error: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(400).json({ error: err.message });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -66,13 +76,15 @@ const dislikeCard = (req, res) => {
   )
     .orFail(new Error('Карточка не найдена'))
     .then((card) => {
-      res.status(200).json(card);
+      res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(404).json({ error: err.message });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(404).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(400).json({ error: err.message });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
