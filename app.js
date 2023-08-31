@@ -18,6 +18,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', rootRouter);
+app.use(rootRouter);
 
 app.listen(PORT);

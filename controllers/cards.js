@@ -45,7 +45,7 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('Card not found'))
+    .orFail(new Error('Карточка не найдена'))
     .then((card) => {
       res.status(200).json(card);
     })
@@ -64,7 +64,7 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('Card not found'))
+    .orFail(new Error('Карточка не найдена'))
     .then((card) => {
       res.status(200).json(card);
     })
