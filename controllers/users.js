@@ -9,13 +9,15 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(new Error('NotFoundError'))
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
+      } else if (err.name === 'CastError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -39,14 +41,14 @@ const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new Error('NotFoundError'))
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
-      } else if (err.message === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });

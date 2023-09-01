@@ -47,7 +47,7 @@ const deleteCardById = (req, res) => {
     .catch((err) => {
       if (err.message === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
-      } else if (err.message === 'ValidationError') {
+      } else if (err.message === 'CastError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
@@ -65,10 +65,9 @@ const likeCard = (req, res) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      console.log('error', err.message);
       if (err.message === 'NotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
-      } else if (err.message === 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
@@ -89,7 +88,7 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
-      } else if (err.message === 'CastError') {
+      } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
