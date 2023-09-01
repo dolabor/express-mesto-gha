@@ -49,6 +49,8 @@ const updateUserProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
