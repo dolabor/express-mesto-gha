@@ -1,18 +1,18 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
+const { HTTP_STATUS } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find()
     .then((cards) => {
-      res.status(200).send(cards);
+      res.status(HTTP_STATUS.OK).send(cards);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+      if (err === 'CastError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -23,10 +23,10 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(201).send(card);
+      res.status(HTTP_STATUS.CREATED).send(card);
     })
-    .catch((err) => {
-      res.status(400).send(err.message);
+    .catch(() => {
+      res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
     });
 };
 
@@ -34,15 +34,15 @@ const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+      if (err === 'CastError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -55,15 +55,15 @@ const likeCard = (req, res) => {
   )
     .orFail()
     .then((card) => {
-      res.status(200).send(card);
+      res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+      if (err === 'CastError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -76,15 +76,15 @@ const dislikeCard = (req, res) => {
   )
     .orFail(new Error('Карточка не найдена'))
     .then((card) => {
-      res.status(200).send(card);
+      res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Некорректные данные' });
-      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+      if (err === 'CastError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
