@@ -57,12 +57,12 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('DocumentNotFoundError'))
+    .orFail(new Error('NotFoundError'))
     .then((card) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'NotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
@@ -78,12 +78,12 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('DocumentNotFoundError'))
+    .orFail(new Error('NotFoundError'))
     .then((card) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'NotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
