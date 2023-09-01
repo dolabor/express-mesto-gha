@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const rootRouter = require('./routes/routes');
+const { HTTP_STATUS } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -17,7 +18,9 @@ app.use((req, res, next) => {
 
   next();
 });
-
 app.use(rootRouter);
+app.use('*', (req, res) => {
+  res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT);

@@ -3,6 +3,7 @@ const { HTTP_STATUS } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find()
+    .populate(['owner', 'likes'])
     .then((cards) => {
       res.status(HTTP_STATUS.OK).send(cards);
     })
@@ -19,11 +20,13 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
 
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => {
-      res.status(HTTP_STATUS.CREATED).send(card);
+      Card.findById(card._id)
+        .populate('owner')
+        .then((createdCard) => res.status(HTTP_STATUS.CREATED).send(createdCard))
+        .catch(() => res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточкa не найденa' }));
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -36,6 +39,7 @@ const createCard = (req, res) => {
 
 const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .populate(['owner', 'likes'])
     .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
@@ -56,8 +60,7 @@ const likeCard = (req, res) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
-    .orFail(new Error('NotFoundError'))
+  ).orFail(new Error('NotFoundError'))
     .then((card) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
