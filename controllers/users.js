@@ -14,7 +14,7 @@ const getUserById = (req, res) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.message === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
