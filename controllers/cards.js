@@ -84,10 +84,12 @@ const dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
+        console.log('Sending 400 Bad Request');
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
+        console.log('Sending 500 Internal Server Error');
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
