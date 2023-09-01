@@ -9,15 +9,13 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
-      if (!user) {
-        return res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
-      }
-      return res.send(user);
+      res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -29,8 +27,8 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(HTTP_STATUS.CREATED).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -42,15 +40,15 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
-    .orFail()
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -62,12 +60,14 @@ const updateAvatar = (req, res) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true })
-    .orFail()
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });

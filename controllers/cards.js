@@ -7,10 +7,10 @@ const getCards = (req, res) => {
       res.status(HTTP_STATUS.OK).send(cards);
     })
     .catch((err) => {
-      if (err === 'CastError') {
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточки не найдены' });
+      } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err === 'DocumentNotFoundError') {
-        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -36,15 +36,15 @@ const createCard = (req, res) => {
 
 const deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
+    .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
       res.status(HTTP_STATUS.OK).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
+      } else if (err.name === 'ValidationError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -57,15 +57,15 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(new Error('DocumentNotFoundError'))
     .then((card) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
+      } else if (err.name === 'ValidationError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -78,18 +78,16 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(new Error('DocumentNotFoundError'))
     .then((card) => {
       res.status(HTTP_STATUS.OK).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        console.log('Sending 400 Bad Request');
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточка не найдена' });
+      } else if (err.name === 'ValidationError') {
+        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
-        console.log('Sending 500 Internal Server Error');
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
     });
