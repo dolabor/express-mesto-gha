@@ -11,7 +11,7 @@ const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .orFail(new Error('DocumentNotFoundError'))
     .then((user) => {
-      res.status(HTTP_STATUS.OK).send(user);
+      res.send(user);
     })
     .catch((err) => {
       if (err.message === 'DocumentNotFoundError') {

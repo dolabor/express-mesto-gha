@@ -3,18 +3,11 @@ const { HTTP_STATUS } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find()
-    .populate(['owner', 'likes'])
     .then((cards) => {
-      res.status(HTTP_STATUS.OK).send(cards);
+      res.send(cards);
     })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Карточки не найдены' });
-      } else if (err.name === 'ValidationError') {
-        res.status(HTTP_STATUS.BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else {
-        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
+    .catch(() => {
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
