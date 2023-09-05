@@ -33,12 +33,12 @@ const deleteCardById = (req, res, next) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
+        return next(new NotFoundError('Карточка не найдена'));
       }
       if (!card.owner.equals(req.user._id)) {
-        next(new ForbiddenError('Вы не можете удалить данную карточку'));
+        return next(new ForbiddenError('Вы не можете удалить данную карточку'));
       }
-      res.send({ message: 'Карточка успешно удалена' });
+      return res.send({ message: 'Карточка успешно удалена' });
     })
     .catch(next);
 };
