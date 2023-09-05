@@ -91,14 +91,12 @@ const updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new Error('DocumentNotFoundError'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
       } else {
         next(err);
@@ -111,14 +109,12 @@ const updateAvatar = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true })
-    .orFail(new Error('DocumentNotFoundError'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.message === 'DocumentNotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else if (err.message === 'ValidationError') {
+      if (err.message === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
       } else {
         next(err);
