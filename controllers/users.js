@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { BadRequestError, NotFoundError, UnauthorisedError } = require('../utils/errors/errors');
+const {
+  BadRequestError, NotFoundError, UnauthorisedError, ConflictError,
+} = require('../utils/errors/errors');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -40,10 +42,19 @@ const createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      user: {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      },
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
       } else {
         next(err);
       }
@@ -55,7 +66,7 @@ const login = (req, res, next) => {
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,

@@ -9,9 +9,6 @@ const { checkValidityURL } = require('../utils/validationURL');
 
 const rootRouter = express.Router();
 
-rootRouter.use('/users', auth, userRouter);
-rootRouter.use('/cards', auth, cardRouter);
-
 rootRouter.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -28,6 +25,9 @@ rootRouter.post('/signin', celebrate({
     password: Joi.string().required(),
   }),
 }), login);
+
+rootRouter.use('/users', auth, userRouter);
+rootRouter.use('/cards', auth, cardRouter);
 
 rootRouter.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
