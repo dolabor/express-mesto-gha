@@ -5,6 +5,7 @@ const cardRouter = require('./cards');
 const { createUser, login } = require('../controllers/users');
 const { NotFoundError } = require('../utils/errors/errors');
 const auth = require('../middlewares/auth');
+const { checkValidityURL } = require('../utils/constants');
 
 const rootRouter = express.Router();
 
@@ -17,7 +18,7 @@ rootRouter.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().custom(checkValidityURL),
   }),
 }), createUser);
 
