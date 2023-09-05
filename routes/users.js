@@ -12,7 +12,7 @@ usersRouter.get('/me', getCurrentUserProfile);
 
 usersRouter.get('/:userId', celebrate({
   body: Joi.object().keys({
-    userId: Joi.string().length(24).hex(),
+    userId: Joi.string().length(24).hex().required(),
   }),
 }), getUserById);
 

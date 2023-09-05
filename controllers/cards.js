@@ -38,7 +38,7 @@ const deleteCardById = (req, res, next) => {
       if (!card.owner.equals(req.user._id)) {
         next(new ForbiddenError('Вы не можете удалить данную карточку'));
       }
-      return res.send({ message: 'Карточка успешно удалена' });
+      res.send({ message: 'Карточка успешно удалена' });
     })
     .catch(next);
 };
@@ -48,14 +48,12 @@ const likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).orFail(new Error('NotFoundError'))
+  ).orFail(new NotFoundError('Пользователь не найден'))
     .then((card) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new BadRequestError('Некорректные данные'));
       } else {
         next(err);
@@ -69,14 +67,12 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('NotFoundError'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((card) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        next(new NotFoundError('Пользователь не найден'));
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         next(new BadRequestError('Некорректные данные'));
       } else {
         next(err);
