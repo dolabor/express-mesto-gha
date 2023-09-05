@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const rootRouter = require('./routes/routes');
-const { HTTP_STATUS } = require('./utils/constants');
+const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+const { rootRouter } = require('./routes/routes');
 
 const { PORT = 3000 } = process.env;
 
@@ -11,16 +12,18 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64f0e6459834f3bc99ab6c93',
-  };
-
-  next();
-});
+app.use(cookieParser());
 app.use(rootRouter);
-app.use('*', (req, res) => {
-  res.status(HTTP_STATUS.NOT_FOUND).send({ message: 'Страница не найдена' });
+app.use(errors());
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    message: statusCode === 500
+      ? 'На сервере произошла ошибка'
+      : message,
+  });
+  next();
 });
 
 app.listen(PORT);

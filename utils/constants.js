@@ -1,9 +1,9 @@
-const HTTP_STATUS = {
-  OK: 200,
-  CREATED: 201,
-  BAD_REQUEST: 400,
-  NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500,
+const checkValidityURL = (url) => {
+  const regex = /^(https?:\/\/)?(www\.)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i;
+  if (regex.test(url)) {
+    return url;
+  }
+  throw new Error('Невалидный URL');
 };
 
-module.exports = { HTTP_STATUS };
+module.exports = { checkValidityURL };
