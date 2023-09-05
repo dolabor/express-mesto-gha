@@ -5,7 +5,7 @@ const cardRouter = require('./cards');
 const { createUser, login } = require('../controllers/users');
 const { NotFoundError } = require('../utils/errors/errors');
 const auth = require('../middlewares/auth');
-const { checkValidityURL } = require('../utils/constants');
+const { checkValidityURL } = require('../utils/validationURL');
 
 const rootRouter = express.Router();
 

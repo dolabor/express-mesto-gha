@@ -3,7 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getUsers, getUserById, updateUserProfile, updateAvatar, getCurrentUserProfile,
 } = require('../controllers/users');
-const checkValidityURL = require('../utils/constants');
+const { checkValidityURL } = require('../utils/validationURL');
 
 const usersRouter = express.Router();
 
