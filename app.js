@@ -2,11 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const config = require('./utils/config');
 const { rootRouter } = require('./routes/routes');
 
-const { PORT = 3000 } = process.env;
+const PORT = config.port;
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+mongoose.connect(config.databaseUrl);
 
 const app = express();
 
